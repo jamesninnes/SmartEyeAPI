@@ -1,6 +1,10 @@
 package main
 
-import "net/http"
+import(
+	"net/http"
+)
+
+
 
 type Route struct {
 	Name        string
@@ -24,12 +28,12 @@ var routes = Routes{
 		"/todos",
 		TodoIndex,
 	},
-	Route{
-		"TodoCreate",
-		"POST",
-		"/todos",
-		TodoCreate,
-	},
+	//Route{
+	//	"TodoCreate",
+	//	"POST",
+	//	"/todos",
+	//	TodoCreate,
+	//},
 	Route{
 		"TodoShow",
 		"GET",

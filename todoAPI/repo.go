@@ -1,16 +1,10 @@
-package main
+package todoAPI
 
 import "fmt"
 
 var currentId int
 
 var todos Todos
-
-// Give us some seed data
-func init() {
-	RepoCreateTodo(Todo{Name: "Write presentation"})
-	RepoCreateTodo(Todo{Name: "Host meetup"})
-}
 
 func RepoFindTodo(id int) Todo {
 	for _, t := range todos {
@@ -22,11 +16,12 @@ func RepoFindTodo(id int) Todo {
 	return Todo{}
 }
 
-//this is bad, I don't think it passes race condtions
 func RepoCreateTodo(t Todo) Todo {
 	currentId += 1
+	t.Name = "test"
 	t.Id = currentId
 	todos = append(todos, t)
+	upload(t)
 	return t
 }
 

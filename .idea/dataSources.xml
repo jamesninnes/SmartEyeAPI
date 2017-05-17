@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="smarteye-testdb.coteiblw5axo.us-west-2.rds.amazonaws.com@smarteye-testdb.coteiblw5axo.us-west-2.rds.amazonaws.com" uuid="67c3bbfc-0e7c-4993-a7b3-cd4e1481fb5b">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://smarteye-testdb.coteiblw5axo.us-west-2.rds.amazonaws.com:5432/smarteye-testdb.coteiblw5axo.us-west-2.rds.amazonaws.com</jdbc-url>
+    </data-source>
+  </component>
+</project>

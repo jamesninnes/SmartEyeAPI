@@ -1,6 +1,7 @@
 package main
 
 import (
+	"./todoAPI"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -12,16 +13,17 @@ import (
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Welcome!\n")
+	fmt.Fprint(w, "Welcome! test\n")
 }
 
-func TodoIndex(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(todos); err != nil {
-		panic(err)
-	}
-}
+//func TodoIndex(w http.ResponseWriter, r *http.Request) {
+//	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+//	fmt.Fprint(w, "Welcome! test\n")
+//	w.WriteHeader(http.StatusOK)
+//	if err := json.NewEncoder(w).Encode(todoAPI.Todos{}); err != nil {
+//		panic(err)
+//	}
+//}
 
 func TodoShow(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -30,7 +32,7 @@ func TodoShow(w http.ResponseWriter, r *http.Request) {
 	if todoId, err = strconv.Atoi(vars["todoId"]); err != nil {
 		panic(err)
 	}
-	todo := RepoFindTodo(todoId)
+	todo := todoAPI.RepoFindTodo(todoId)
 	if todo.Id > 0 {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusOK)
@@ -55,8 +57,9 @@ Test with this curl command:
 curl -H "Content-Type: application/json" -d '{"name":"New Todo"}' http://localhost:8080/todos
 
 */
-func TodoCreate(w http.ResponseWriter, r *http.Request) {
-	var todo Todo
+func TodoIndex(w http.ResponseWriter, r *http.Request) {
+
+	var todo todoAPI.Todo
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
 		panic(err)
@@ -72,7 +75,10 @@ func TodoCreate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	t := RepoCreateTodo(todo)
+	t := todoAPI.RepoCreateTodo(todo)
+
+	pullData()
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(t); err != nil {
