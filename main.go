@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
-	"database/sql"
+	_"database/sql"
 	_ "github.com/lib/pq"
 )
 

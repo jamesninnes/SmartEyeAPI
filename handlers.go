@@ -1,54 +1,21 @@
 package main
 
 import (
-	"./todoAPI"
 	"encoding/json"
 	"fmt"
-	"io"
-	"io/ioutil"
+	_"io"
+	_"io/ioutil"
 	"net/http"
-	"strconv"
 
-	"github.com/gorilla/mux"
+	_"github.com/gorilla/mux"
+	_"time"
+	"github.com/k-goepel/smarteyeapi/SmartEyeInterface"
+	"time"
+	"database/sql"
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Welcome! test\n")
-}
-
-//func TodoIndex(w http.ResponseWriter, r *http.Request) {
-//	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-//	fmt.Fprint(w, "Welcome! test\n")
-//	w.WriteHeader(http.StatusOK)
-//	if err := json.NewEncoder(w).Encode(todoAPI.Todos{}); err != nil {
-//		panic(err)
-//	}
-//}
-
-func TodoShow(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	var todoId int
-	var err error
-	if todoId, err = strconv.Atoi(vars["todoId"]); err != nil {
-		panic(err)
-	}
-	todo := todoAPI.RepoFindTodo(todoId)
-	if todo.Id > 0 {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(todo); err != nil {
-			panic(err)
-		}
-		return
-	}
-
-	// If we didn't find it, 404
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusNotFound)
-	if err := json.NewEncoder(w).Encode(jsonErr{Code: http.StatusNotFound, Text: "Not Found"}); err != nil {
-		panic(err)
-	}
-
 }
 
 /*
@@ -59,25 +26,7 @@ curl -H "Content-Type: application/json" -d '{"name":"New Todo"}' http://localho
 */
 func TodoIndex(w http.ResponseWriter, r *http.Request) {
 
-	var todo todoAPI.Todo
-	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
-	if err != nil {
-		panic(err)
-	}
-	if err := r.Body.Close(); err != nil {
-		panic(err)
-	}
-	if err := json.Unmarshal(body, &todo); err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(422) // unprocessable entity
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
-	}
-
-	t := todoAPI.RepoCreateTodo(todo)
-
-	pullData()
+	t := SmartEyeInterface.CreateTodo(1, "test", false, time.Now())
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
@@ -85,3 +34,108 @@ func TodoIndex(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 }
+
+
+
+func pullTodo(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Fprint(w, "Stored in DB:\n")
+
+
+	db, err := sql.Open("postgres", "user=awspostgres " +
+		"dbname=smarteyeTest " +
+		"password=S!lly5tr1ng " +
+		"host=smarteye-testdb.coteiblw5axo.us-west-2.rds.amazonaws.com")
+
+	if err != nil {
+		panic(err)
+	}
+
+	db.Ping()
+
+	rows, err := db.Query("SELECT * FROM todo")
+
+	for rows.Next(){
+		id := 0
+		name := ""
+		completed := false
+		due := ""
+		//t, err := time.Parse("0000-00-00", due)
+		//
+		//if err != nil{
+		//	panic(err)
+		//}
+
+		rows.Scan(&id, &name, &completed, &due)
+		fmt.Println(rows)
+
+		output := fmt.Sprintf("Id= $1 Name= $2 Completed= $3", id, name, completed)
+
+		fmt.Fprint(w, output)
+	}
+
+
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusCreated)
+}
+
+func patternPage(w http.ResponseWriter, r *http.Request){
+
+	fmt.Fprint(w, "New Pattern")
+
+	p := SmartEyeInterface.NewManualPattern("Soon", "%1Jw7$hhgeo")
+	err := SmartEyeInterface.UploadManualPattern(p)
+
+	output := fmt.Sprintf("$1, $2", SmartEyeInterface.GetMessage(err), SmartEyeInterface.GetTime(err))
+
+	fmt.Fprint(w, output)
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusCreated)
+
+}
+
+func pullPattern(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Fprint(w, "Stored in DB:\n")
+
+
+	db, err := sql.Open("postgres", "user=awspostgres " +
+		"dbname=smarteyeTest " +
+		"password=S!lly5tr1ng " +
+		"host=smarteye-testdb.coteiblw5axo.us-west-2.rds.amazonaws.com")
+
+	if err != nil {
+		panic(err)
+	}
+
+	db.Ping()
+
+	rows, err := db.Query("SELECT * FROM patterns")
+
+	for rows.Next(){
+		id := 0
+		name := ""
+		pattern := ""
+		//t, err := time.Parse("0000-00-00", due)
+		//
+		//if err != nil{
+		//	panic(err)
+		//}
+
+		rows.Scan(&id, &name, &pattern)
+		fmt.Println(rows)
+
+		output := fmt.Sprintf("Id= $1 Name= $2 Pattern= $3", id, name, pattern)
+
+		fmt.Fprint(w, output)
+	}
+
+
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusCreated)
+}
+
+
